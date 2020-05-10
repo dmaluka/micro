@@ -60,6 +60,29 @@ func LuaAction(fn string) func(*BufPane) bool {
 	}
 }
 
+func LuaMouseAction(fn string) func(*BufPane, *tcell.EventMouse) bool {
+	luaFn := strings.Split(fn, ".")
+	if len(luaFn) <= 1 {
+		return nil
+	}
+	plName, plFn := luaFn[0], luaFn[1]
+	pl := config.FindPlugin(plName)
+	if pl == nil {
+		return nil
+	}
+	return func(h *BufPane, te *tcell.EventMouse) bool {
+		val, err := pl.Call(plFn, luar.New(ulua.L, h), luar.New(ulua.L, te))
+		if err != nil {
+			screen.TermMessage(err)
+		}
+		if v, ok := val.(lua.LBool); !ok {
+			return false
+		} else {
+			return bool(v)
+		}
+	}
+}
+
 // BufMapKey maps an event to an action
 func BufMapEvent(k Event, action string) {
 	switch e := k.(type) {
@@ -155,6 +178,14 @@ func bufMapKey(k Event, action string) {
 // BufMapMouse maps a mouse event to an action
 func bufMapMouse(k MouseEvent, action string) {
 	if f, ok := BufMouseActions[action]; ok {
+		BufBindings.RegisterMouseBinding(k, BufMouseActionGeneral(f))
+	} else if strings.HasPrefix(action, "lua:") && !strings.ContainsAny(action, "&!,") {
+		a := strings.SplitN(action, ":", 2)[1]
+		f = LuaMouseAction(a)
+		if f == nil {
+			screen.TermMessage("Lua Error:", a, "does not exist")
+			return
+		}
 		BufBindings.RegisterMouseBinding(k, BufMouseActionGeneral(f))
 	} else {
 		// TODO
