@@ -430,6 +430,11 @@ func (h *BufPane) HandleEvent(event tcell.Event) {
 			}
 			h.DoMouseEvent(me, e)
 		}
+
+		if e.Buttons() & (tcell.Button1 | tcell.Button2 | tcell.Button3 | tcell.Button4 |
+		                  tcell.Button5 | tcell.Button6 | tcell.Button7 | tcell.Button8) != 0 {
+			h.mouseReleased = false
+		}
 	}
 	h.Buf.MergeCursors()
 
@@ -531,6 +536,10 @@ func (h *BufPane) DoMouseEvent(e MouseEvent, te *tcell.EventMouse) bool {
 	// 	return h.DoKeyEvent(e)
 	// }
 	// return false
+}
+
+func (h *BufPane) MouseReleased() bool {
+	return h.mouseReleased
 }
 
 // DoRuneInsert inserts a given rune into the current buffer
