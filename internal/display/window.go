@@ -29,4 +29,5 @@ type Window interface {
 type BWindow interface {
 	Window
 	SetBuffer(b *buffer.Buffer)
+	SetHlsearch(enabled bool, str string, useRegex bool)
 }

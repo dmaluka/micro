@@ -65,6 +65,8 @@ func (i *InfoWindow) SetView(v *View)  {}
 func (i *InfoWindow) SetActive(b bool) {}
 func (i *InfoWindow) IsActive() bool   { return true }
 
+func (i *InfoWindow) SetHlsearch(enabled bool, str string, useRegex bool) {}
+
 func (i *InfoWindow) LocFromVisual(vloc buffer.Loc) buffer.Loc {
 	c := i.Buffer.GetActiveCursor()
 	l := i.Buffer.LineBytes(0)

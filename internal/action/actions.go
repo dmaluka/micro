@@ -833,6 +833,7 @@ func (h *BufPane) Search(str string, useRegex bool, searchDown bool) error {
 		h.Cursor.GotoLoc(h.Cursor.CurSelection[1])
 		h.lastSearch = str
 		h.lastSearchRegex = useRegex
+		h.BWindow.SetHlsearch(h.Buf.Settings["hlsearch"].(bool), h.lastSearch, h.lastSearchRegex)
 		h.Relocate()
 	} else {
 		h.Cursor.ResetSelection()
@@ -875,6 +876,7 @@ func (h *BufPane) find(useRegex bool) bool {
 				h.Cursor.GotoLoc(h.Cursor.CurSelection[1])
 				h.lastSearch = resp
 				h.lastSearchRegex = useRegex
+				h.BWindow.SetHlsearch(h.Buf.Settings["hlsearch"].(bool), h.lastSearch, h.lastSearchRegex)
 			} else {
 				h.Cursor.ResetSelection()
 				InfoBar.Message("No matches found")

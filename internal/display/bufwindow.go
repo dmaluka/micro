@@ -25,6 +25,10 @@ type BufWindow struct {
 
 	gutterOffset int
 	drawStatus   bool
+
+	hlsearchEnabled  bool
+	hlsearchStr      string
+	hlsearchUseRegex bool
 }
 
 // NewBufWindow creates a new window at a location in the screen with a width and height
@@ -62,6 +66,12 @@ func (w *BufWindow) SetActive(b bool) {
 
 func (w *BufWindow) IsActive() bool {
 	return w.active
+}
+
+func (w *BufWindow) SetHlsearch(enabled bool, str string, useRegex bool) {
+	w.hlsearchEnabled = enabled
+	w.hlsearchStr = str
+	w.hlsearchUseRegex = useRegex
 }
 
 func (w *BufWindow) getStartInfo(n, lineN int) ([]byte, int, int, *tcell.Style) {
@@ -364,6 +374,25 @@ func (w *BufWindow) drawLineNum(lineNumStyle tcell.Style, softwrapped bool, maxL
 	vloc.X++
 }
 
+func (w *BufWindow) getHlsearchMatches(lineN int) [][2]int {
+	matches := make([][2]int, 0)
+	start := buffer.Loc{0, lineN}
+	end := buffer.Loc{util.CharacterCount(w.Buf.LineBytes(lineN)), lineN}
+	for start.X < end.X {
+		match, found, _ := w.Buf.FindNext(w.hlsearchStr, start, end, start, true, w.hlsearchUseRegex)
+		if !found {
+			break
+		}
+		matches = append(matches, [2]int{match[0].X, match[1].X})
+
+		start.X = match[1].X
+		if match[1].X == match[0].X {
+			start.X = match[1].X + 1
+		}
+	}
+	return matches
+}
+
 // getStyle returns the highlight style for the given character position
 // If there is no change to the current highlight style it just returns that
 func (w *BufWindow) getStyle(style tcell.Style, bloc buffer.Loc) (tcell.Style, bool) {
@@ -510,6 +539,11 @@ func (w *BufWindow) displayBuffer() {
 
 		w.gutterOffset = vloc.X
 
+		var hlsearchMatches [][2]int
+		if w.hlsearchEnabled {
+			hlsearchMatches = w.getHlsearchMatches(bloc.Y)
+		}
+
 		line, nColsBeforeStart, bslice, startStyle := w.getStartInfo(w.StartCol, bloc.Y)
 		if startStyle != nil {
 			curStyle = *startStyle
@@ -518,6 +552,21 @@ func (w *BufWindow) displayBuffer() {
 
 		draw := func(r rune, combc []rune, style tcell.Style, showcursor bool) {
 			if nColsBeforeStart <= 0 {
+				if w.hlsearchEnabled {
+					for _, m := range hlsearchMatches {
+						if m[0] > bloc.X {
+							break
+						}
+						if m[0] <= bloc.X && m[1] > bloc.X {
+							style = config.DefStyle.Reverse(true)
+							if s, ok := config.Colorscheme["hlsearch"]; ok {
+								style = s
+							}
+							break
+						}
+					}
+				}
+
 				_, origBg, _ := style.Decompose()
 				_, defBg, _ := config.DefStyle.Decompose()
 
