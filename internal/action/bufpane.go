@@ -167,6 +167,8 @@ type BufPane struct {
 
 	Cursor *buffer.Cursor // the active cursor
 
+	initialized bool
+
 	// Since tcell doesn't differentiate between a mouse release event
 	// and a mouse move event with no keys pressed, we need to keep
 	// track of whether or not the mouse was pressed (or not released) last event to determine
@@ -217,14 +219,22 @@ func NewBufPane(buf *buffer.Buffer, win display.BWindow, tab *Tab) *BufPane {
 	h.Cursor = h.Buf.GetActiveCursor()
 	h.mouseReleased = true
 
+	h.initialized = true
 	config.RunPluginFn("onBufPaneOpen", luar.New(ulua.L, h))
 
 	return h
 }
 
 func NewBufPaneFromBuf(buf *buffer.Buffer, tab *Tab) *BufPane {
-	w := display.NewBufWindow(0, 0, 0, 0, buf)
-	return NewBufPane(buf, w, tab)
+	h := new(BufPane)
+	h.Buf = buf
+	h.BWindow = display.NewBufWindow(0, 0, 0, 0, buf)
+	h.tab = tab
+
+	h.Cursor = h.Buf.GetActiveCursor()
+	h.mouseReleased = true
+
+	return h
 }
 
 func (h *BufPane) SetTab(t *Tab) {

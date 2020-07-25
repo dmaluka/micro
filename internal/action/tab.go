@@ -1,9 +1,12 @@
 package action
 
 import (
+	luar "layeh.com/gopher-luar"
+
 	"github.com/zyedidia/micro/v2/internal/buffer"
 	"github.com/zyedidia/micro/v2/internal/config"
 	"github.com/zyedidia/micro/v2/internal/display"
+	ulua "github.com/zyedidia/micro/v2/internal/lua"
 	"github.com/zyedidia/micro/v2/internal/screen"
 	"github.com/zyedidia/micro/v2/internal/views"
 	"github.com/zyedidia/tcell"
@@ -294,6 +297,12 @@ func (t *Tab) Resize() {
 		pv.X, pv.Y = n.X+offset, n.Y
 		p.SetView(pv)
 		p.Resize(n.W-offset, n.H)
+		if bp, ok := p.(*BufPane); ok {
+			if !bp.initialized {
+				bp.initialized = true
+				config.RunPluginFn("onBufPaneOpen", luar.New(ulua.L, bp))
+			}
+		}
 	}
 }
 
