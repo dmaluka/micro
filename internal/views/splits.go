@@ -89,12 +89,9 @@ func (n *Node) IsLeaf() bool {
 	return len(n.children) == 0
 }
 
-// ID returns this node's id or 0 if it is not viewable
+// ID returns this node's id
 func (n *Node) ID() uint64 {
-	if n.IsLeaf() {
-		return n.id
-	}
-	return 0
+	return n.id
 }
 
 // CanResize returns if this node can be resized
@@ -125,11 +122,11 @@ func (n *Node) Children() []*Node {
 // GetNode returns the node with the given id in the tree of children
 // that this node has access to or nil if the node with that id cannot be found
 func (n *Node) GetNode(id uint64) *Node {
-	if n.id == id && n.IsLeaf() {
+	if n.id == id {
 		return n
 	}
 	for _, c := range n.children {
-		if c.id == id && c.IsLeaf() {
+		if c.id == id {
 			return c
 		}
 		gc := c.GetNode(id)
@@ -342,6 +339,7 @@ func (n *Node) vHSplit(i int, right bool) uint64 {
 		}
 
 		n.children = append(n.children, hn1, hn2)
+		n.id = NewID()
 		n.markResize()
 		return newid
 	} else {
@@ -361,6 +359,7 @@ func (n *Node) vHSplit(i int, right bool) uint64 {
 		}
 		copy(n.children[inspos+1:], n.children[inspos:])
 		n.children[inspos] = hn
+		n.id = NewID()
 
 		n.applyNewSize(height, true)
 		return newid
@@ -378,6 +377,7 @@ func (n *Node) hVSplit(i int, right bool) uint64 {
 		}
 
 		n.children = append(n.children, vn1, vn2)
+		n.id = NewID()
 		n.markResize()
 		return newid
 	} else {
@@ -396,6 +396,7 @@ func (n *Node) hVSplit(i int, right bool) uint64 {
 		}
 		copy(n.children[inspos+1:], n.children[inspos:])
 		n.children[inspos] = vn
+		n.id = NewID()
 
 		n.applyNewSize(width, false)
 		return newid
