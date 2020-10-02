@@ -426,6 +426,15 @@ func (b *Buffer) SetName(s string) {
 // Insert inserts the given string of text at the start location
 func (b *Buffer) Insert(start Loc, text string) {
 	if !b.Type.Readonly {
+		if text != "" && start.X == util.CharacterCount(b.lines[start.Y].data) {
+			if util.IsBytesWhitespace([]byte(text)) {
+				b.cursors[b.curCursor].LastTrailingWhitespace = true
+				b.cursors[b.curCursor].LastTrailingWhitespaceY = start.Y
+			} else {
+				b.cursors[b.curCursor].LastTrailingWhitespace = false
+			}
+		}
+
 		b.EventHandler.cursors = b.cursors
 		b.EventHandler.active = b.curCursor
 		b.EventHandler.Insert(start, text)

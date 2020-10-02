@@ -30,6 +30,9 @@ type Cursor struct {
 	// to know what the original selection was
 	OrigSelection [2]Loc
 
+	LastTrailingWhitespace  bool
+	LastTrailingWhitespaceY int
+
 	// Which cursor index is this (for multiple cursors)
 	Num int
 }

@@ -516,6 +516,10 @@ func (w *BufWindow) displayBuffer() {
 		}
 		bloc.X = bslice
 
+		bline := b.LineBytes(bloc.Y)
+		blineLen := util.CharacterCount(bline)
+		trailingwsLen := util.CharacterCount(util.GetTrailingWhitespace(bline))
+
 		draw := func(r rune, combc []rune, style tcell.Style, showcursor bool) {
 			if nColsBeforeStart <= 0 {
 				_, origBg, _ := style.Decompose()
@@ -572,6 +576,18 @@ func (w *BufWindow) displayBuffer() {
 					if colorcolumn != 0 && vloc.X-w.gutterOffset+w.StartCol == colorcolumn && !dontOverrideBackground {
 						fg, _, _ := s.Decompose()
 						style = style.Background(fg)
+					}
+				}
+
+				if bloc.X >= blineLen-trailingwsLen && bloc.X < blineLen {
+					if s, ok := config.Colorscheme["trailingws"]; ok {
+						for _, c := range cursors {
+							if !c.LastTrailingWhitespace || c.LastTrailingWhitespaceY != bloc.Y {
+								fg, _, _ := s.Decompose()
+								style = style.Background(fg)
+								break
+							}
+						}
 					}
 				}
 
