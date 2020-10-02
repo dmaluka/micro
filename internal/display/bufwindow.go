@@ -582,7 +582,7 @@ func (w *BufWindow) displayBuffer() {
 				if bloc.X >= blineLen-trailingwsLen && bloc.X < blineLen {
 					if s, ok := config.Colorscheme["trailingws"]; ok {
 						for _, c := range cursors {
-							if !c.LastTrailingWhitespace || c.LastTrailingWhitespaceY != bloc.Y {
+							if c.LastTrailingWhitespaceY != bloc.Y {
 								fg, _, _ := s.Decompose()
 								style = style.Background(fg)
 								break

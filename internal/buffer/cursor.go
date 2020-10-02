@@ -30,7 +30,6 @@ type Cursor struct {
 	// to know what the original selection was
 	OrigSelection [2]Loc
 
-	LastTrailingWhitespace  bool
 	LastTrailingWhitespaceY int
 
 	// Which cursor index is this (for multiple cursors)
@@ -41,6 +40,8 @@ func NewCursor(b *Buffer, l Loc) *Cursor {
 	c := &Cursor{
 		buf: b,
 		Loc: l,
+
+		LastTrailingWhitespaceY: -1,
 	}
 	c.StoreVisualX()
 	return c

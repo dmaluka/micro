@@ -428,10 +428,9 @@ func (b *Buffer) Insert(start Loc, text string) {
 	if !b.Type.Readonly {
 		if text != "" && start.X == util.CharacterCount(b.lines[start.Y].data) {
 			if util.IsBytesWhitespace([]byte(text)) {
-				b.cursors[b.curCursor].LastTrailingWhitespace = true
 				b.cursors[b.curCursor].LastTrailingWhitespaceY = start.Y
 			} else {
-				b.cursors[b.curCursor].LastTrailingWhitespace = false
+				b.cursors[b.curCursor].LastTrailingWhitespaceY = -1
 			}
 		}
 
