@@ -579,14 +579,18 @@ func (w *BufWindow) displayBuffer() {
 					}
 				}
 
-				if bloc.X >= blineLen-trailingwsLen && bloc.X < blineLen {
-					if s, ok := config.Colorscheme["trailingws"]; ok {
+				if s, ok := config.Colorscheme["trailingws"]; ok {
+					if bloc.X >= blineLen-trailingwsLen && bloc.X < blineLen {
+						hl := true
 						for _, c := range cursors {
-							if c.LastTrailingWhitespaceY != bloc.Y {
-								fg, _, _ := s.Decompose()
-								style = style.Background(fg)
+							if c.LastTrailingWhitespaceY == bloc.Y {
+								hl = false
 								break
 							}
+						}
+						if hl {
+							fg, _, _ := s.Decompose()
+							style = style.Background(fg)
 						}
 					}
 				}
