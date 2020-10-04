@@ -451,9 +451,18 @@ func (b *Buffer) Insert(start Loc, text string) {
 // Remove removes the characters between the start and end locations
 func (b *Buffer) Remove(start, end Loc) {
 	if !b.Type.Readonly {
+		removedWsOnly := util.IsBytesWhitespace(b.Substr(start, end))
+
 		b.EventHandler.cursors = b.cursors
 		b.EventHandler.active = b.curCursor
 		b.EventHandler.Remove(start, end)
+
+		if start != end && start.X == util.CharacterCount(b.lines[start.Y].data) {
+			removedAfterWs := len(util.GetTrailingWhitespace(b.lines[start.Y].data)) > 0
+			if removedAfterWs && !removedWsOnly {
+				b.GetActiveCursor().LastTrailingWhitespaceY = start.Y
+			}
+		}
 
 		b.RequestBackup()
 	}
