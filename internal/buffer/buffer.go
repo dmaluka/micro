@@ -427,10 +427,16 @@ func (b *Buffer) SetName(s string) {
 func (b *Buffer) Insert(start Loc, text string) {
 	if !b.Type.Readonly {
 		if text != "" && start.X == util.CharacterCount(b.lines[start.Y].data) {
-			if util.IsBytesWhitespace([]byte(text)) {
-				b.cursors[b.curCursor].LastTrailingWhitespaceY = start.Y
-			} else {
-				b.cursors[b.curCursor].LastTrailingWhitespaceY = -1
+			c := b.GetActiveCursor()
+
+			addingTrailingWs := len(util.GetTrailingWhitespace([]byte(text))) > 0
+			addingWsOnly := util.IsBytesWhitespace([]byte(text))
+			addingAfterWs := len(util.GetTrailingWhitespace(b.lines[start.Y].data)) > 0
+
+			if addingTrailingWs && !(addingAfterWs && addingWsOnly) {
+				c.LastTrailingWhitespaceY = start.Y
+			} else if !addingTrailingWs {
+				c.LastTrailingWhitespaceY = -1
 			}
 		}
 
