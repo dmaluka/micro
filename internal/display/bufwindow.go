@@ -529,6 +529,23 @@ func (w *BufWindow) displayBuffer() {
 				// over cursor-line and color-column
 				dontOverrideBackground := origBg != defBg
 
+				if s, ok := config.Colorscheme["trailingws"]; ok {
+					if bloc.X >= blineLen-trailingwsLen && bloc.X < blineLen {
+						hl := true
+						for _, c := range cursors {
+							if c.LastTrailingWhitespaceY == bloc.Y {
+								hl = false
+								break
+							}
+						}
+						if hl {
+							fg, _, _ := s.Decompose()
+							style = style.Background(fg)
+							dontOverrideBackground = true
+						}
+					}
+				}
+
 				for _, c := range cursors {
 					if c.HasSelection() &&
 						(bloc.GreaterEqual(c.CurSelection[0]) && bloc.LessThan(c.CurSelection[1]) ||
@@ -576,22 +593,6 @@ func (w *BufWindow) displayBuffer() {
 					if colorcolumn != 0 && vloc.X-w.gutterOffset+w.StartCol == colorcolumn && !dontOverrideBackground {
 						fg, _, _ := s.Decompose()
 						style = style.Background(fg)
-					}
-				}
-
-				if s, ok := config.Colorscheme["trailingws"]; ok {
-					if bloc.X >= blineLen-trailingwsLen && bloc.X < blineLen {
-						hl := true
-						for _, c := range cursors {
-							if c.LastTrailingWhitespaceY == bloc.Y {
-								hl = false
-								break
-							}
-						}
-						if hl {
-							fg, _, _ := s.Decompose()
-							style = style.Background(fg)
-						}
 					}
 				}
 
