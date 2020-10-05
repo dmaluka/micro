@@ -518,6 +518,7 @@ func (w *BufWindow) displayBuffer() {
 
 		bline := b.LineBytes(bloc.Y)
 		blineLen := util.CharacterCount(bline)
+		leadingwsLen := len(util.GetLeadingWhitespace(bline))
 		trailingwsLen := util.CharacterCount(util.GetTrailingWhitespace(bline))
 
 		draw := func(r rune, combc []rune, style tcell.Style, showcursor bool) {
@@ -528,6 +529,15 @@ func (w *BufWindow) displayBuffer() {
 				// syntax highlighting with non-default background takes precedence
 				// over cursor-line and color-column
 				dontOverrideBackground := origBg != defBg
+
+				if s, ok := config.Colorscheme["tab-error"]; ok {
+					if (b.Settings["tabstospaces"].(bool) && (r == '\t' || !showcursor)) ||
+						(!b.Settings["tabstospaces"].(bool) && bloc.X < leadingwsLen && r == ' ' && showcursor) {
+						fg, _, _ := s.Decompose();
+						style = style.Background(fg)
+						dontOverrideBackground = true
+					}
+				}
 
 				if s, ok := config.Colorscheme["trailingws"]; ok {
 					if bloc.X >= blineLen-trailingwsLen && bloc.X < blineLen {
