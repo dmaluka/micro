@@ -531,9 +531,10 @@ func (w *BufWindow) displayBuffer() {
 				dontOverrideBackground := origBg != defBg
 
 				if s, ok := config.Colorscheme["tab-error"]; ok {
-					if (b.Settings["tabstospaces"].(bool) && (r == '\t' || !showcursor)) ||
-						(!b.Settings["tabstospaces"].(bool) && bloc.X < leadingwsLen && r == ' ' && showcursor) {
-						fg, _, _ := s.Decompose();
+					isTab := (r == '\t') || (r == ' ' && !showcursor)
+					if (b.Settings["tabstospaces"].(bool) && isTab) ||
+						(!b.Settings["tabstospaces"].(bool) && bloc.X < leadingwsLen && r == ' ' && !isTab) {
+						fg, _, _ := s.Decompose()
 						style = style.Background(fg)
 						dontOverrideBackground = true
 					}
