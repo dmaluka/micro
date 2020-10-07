@@ -366,7 +366,7 @@ func GetTrailingWhitespace(b []byte) []byte {
 	for len(b) > 0 {
 		r, size := utf8.DecodeLastRune(b)
 		if IsWhitespace(r) {
-			ws = append(ws, []byte(string(r))...)
+			ws = append([]byte(string(r)), ws...)
 		} else {
 			break
 		}
