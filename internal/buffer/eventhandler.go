@@ -45,6 +45,13 @@ type Delta struct {
 func (eh *EventHandler) DoTextEvent(t *TextEvent, useUndo bool) {
 	oldl := eh.buf.LinesNum()
 
+	var addingAtEol, addingAfterWs bool
+	if len(t.Deltas) == 1 && t.EventType == TextEventInsert {
+		line := eh.buf.LineBytes(t.Deltas[0].Start.Y)
+		addingAtEol = t.Deltas[0].Start.X == util.CharacterCount(line)
+		addingAfterWs = len(util.GetTrailingWhitespace(line)) > 0
+	}
+
 	if useUndo {
 		eh.Execute(t)
 	} else {
@@ -105,6 +112,28 @@ func (eh *EventHandler) DoTextEvent(t *TextEvent, useUndo bool) {
 		c.OrigSelection[1] = move(c.OrigSelection[1])
 		c.Relocate()
 		c.LastVisualX = c.GetVisualX()
+	}
+
+	c := eh.cursors[eh.active]
+	if t.EventType == TextEventInsert && addingAtEol {
+		addingTrailingWs := len(util.GetTrailingWhitespace(t.Deltas[0].Text)) > 0
+		addingWsOnly := util.IsBytesWhitespace(t.Deltas[0].Text)
+
+		if addingTrailingWs && !(addingAfterWs && addingWsOnly) {
+			c.LastTrailingWhitespaceY = t.Deltas[0].Start.Y
+		} else if !addingTrailingWs {
+			c.LastTrailingWhitespaceY = -1
+		}
+	} else if t.EventType == TextEventRemove {
+		line := eh.buf.LineBytes(t.Deltas[0].Start.Y)
+		if t.Deltas[0].Start.X == util.CharacterCount(line) {
+			removedAfterWs := len(util.GetTrailingWhitespace(line)) > 0
+			removedWsOnly := util.IsBytesWhitespace(t.Deltas[0].Text)
+
+			if removedAfterWs && !removedWsOnly {
+				c.LastTrailingWhitespaceY = t.Deltas[0].Start.Y
+			}
+		}
 	}
 }
 
