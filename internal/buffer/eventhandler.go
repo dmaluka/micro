@@ -142,6 +142,8 @@ func (eh *EventHandler) DoTextEvent(t *TextEvent, useUndo bool) {
 
 			if removedAfterWs && !removedWsOnly {
 				c.LastTrailingWhitespaceY = c.Y
+			} else if !removedAfterWs {
+				c.LastTrailingWhitespaceY = -1
 			}
 		}
 	}
