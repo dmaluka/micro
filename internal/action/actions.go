@@ -473,6 +473,8 @@ func (h *BufPane) InsertNewline() bool {
 	cx := h.Cursor.X
 
 	// Remove the whitespaces if keepautoindent setting is off
+	// Note: it should be done prior to inserting newline, for proper work
+	// of hltrailingws in the case of undo of InsertNewline
 	if h.Buf.Settings["autoindent"].(bool) && !h.Buf.Settings["keepautoindent"].(bool) && h.Cursor.X <= util.CharacterCount(ws) {
 		h.Buf.Remove(buffer.Loc{X: 0, Y: h.Cursor.Y}, h.Cursor.Loc)
 	}
