@@ -119,7 +119,7 @@ func (eh *EventHandler) DoTextEvent(t *TextEvent, useUndo bool) {
 	}
 
 	c := eh.cursors[eh.active]
-	if t.EventType == TextEventInsert && addingAtEol {
+	if t.EventType == TextEventInsert && c.Loc == end && addingAtEol {
 		addingTrailingWs := hasTrailingWs(text)
 		addingWsAfterWs := false
 		if start.Y == end.Y {
@@ -131,7 +131,7 @@ func (eh *EventHandler) DoTextEvent(t *TextEvent, useUndo bool) {
 		} else if !addingTrailingWs {
 			c.NewTrailingWsY = -1
 		}
-	} else if t.EventType == TextEventRemove {
+	} else if t.EventType == TextEventRemove && c.Loc == start {
 		line := eh.buf.LineBytes(start.Y)
 		if start.X == util.CharacterCount(line) {
 			removedAfterWs := hasTrailingWs(line)
