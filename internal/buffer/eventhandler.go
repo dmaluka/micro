@@ -45,11 +45,15 @@ type Delta struct {
 func (eh *EventHandler) DoTextEvent(t *TextEvent, useUndo bool) {
 	oldl := eh.buf.LinesNum()
 
+	hasTrailingWs := func(b []byte) bool {
+		return len(util.GetTrailingWhitespace(b)) > 0
+	}
+
 	var addingAtEol, addingAfterWs bool
 	if len(t.Deltas) == 1 && t.EventType == TextEventInsert {
 		line := eh.buf.LineBytes(t.Deltas[0].Start.Y)
 		addingAtEol = t.Deltas[0].Start.X == util.CharacterCount(line)
-		addingAfterWs = len(util.GetTrailingWhitespace(line)) > 0
+		addingAfterWs = hasTrailingWs(line)
 	}
 
 	if useUndo {
@@ -116,10 +120,10 @@ func (eh *EventHandler) DoTextEvent(t *TextEvent, useUndo bool) {
 
 	c := eh.cursors[eh.active]
 	if t.EventType == TextEventInsert && addingAtEol {
-		addingTrailingWs := len(util.GetTrailingWhitespace(t.Deltas[0].Text)) > 0
+		addingTrailingWs := hasTrailingWs(text)
 		addingWsAfterWs := false
-		if t.Deltas[0].Start.Y == t.Deltas[0].End.Y {
-			addingWsAfterWs = addingAfterWs && util.IsBytesWhitespace(t.Deltas[0].Text)
+		if start.Y == end.Y {
+			addingWsAfterWs = addingAfterWs && util.IsBytesWhitespace(text)
 		}
 
 		if addingTrailingWs && !addingWsAfterWs {
@@ -128,16 +132,16 @@ func (eh *EventHandler) DoTextEvent(t *TextEvent, useUndo bool) {
 			c.NewTrailingWsY = -1
 		}
 	} else if t.EventType == TextEventRemove {
-		line := eh.buf.LineBytes(t.Deltas[0].Start.Y)
-		if t.Deltas[0].Start.X == util.CharacterCount(line) {
-			removedAfterWs := len(util.GetTrailingWhitespace(line)) > 0
+		line := eh.buf.LineBytes(start.Y)
+		if start.X == util.CharacterCount(line) {
+			removedAfterWs := hasTrailingWs(line)
 
 			var removedWsOnly bool
-			firstnl := bytes.Index(t.Deltas[0].Text, []byte{'\n'})
+			firstnl := bytes.Index(text, []byte{'\n'})
 			if firstnl >= 0 {
-				removedWsOnly = util.IsBytesWhitespace(t.Deltas[0].Text[:firstnl])
+				removedWsOnly = util.IsBytesWhitespace(text[:firstnl])
 			} else {
-				removedWsOnly = util.IsBytesWhitespace(t.Deltas[0].Text)
+				removedWsOnly = util.IsBytesWhitespace(text)
 			}
 
 			if removedAfterWs && !removedWsOnly {
