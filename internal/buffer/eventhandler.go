@@ -123,9 +123,9 @@ func (eh *EventHandler) DoTextEvent(t *TextEvent, useUndo bool) {
 		}
 
 		if addingTrailingWs && !addingWsAfterWs {
-			c.LastTrailingWhitespaceY = c.Y
+			c.NewTrailingWsY = c.Y
 		} else if !addingTrailingWs {
-			c.LastTrailingWhitespaceY = -1
+			c.NewTrailingWsY = -1
 		}
 	} else if t.EventType == TextEventRemove {
 		line := eh.buf.LineBytes(t.Deltas[0].Start.Y)
@@ -141,9 +141,9 @@ func (eh *EventHandler) DoTextEvent(t *TextEvent, useUndo bool) {
 			}
 
 			if removedAfterWs && !removedWsOnly {
-				c.LastTrailingWhitespaceY = c.Y
+				c.NewTrailingWsY = c.Y
 			} else if !removedAfterWs {
-				c.LastTrailingWhitespaceY = -1
+				c.NewTrailingWsY = -1
 			}
 		}
 	}

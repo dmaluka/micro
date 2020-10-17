@@ -544,7 +544,7 @@ func (w *BufWindow) displayBuffer() {
 					if bloc.X >= blineLen-trailingwsLen && bloc.X < blineLen {
 						hl := true
 						for _, c := range cursors {
-							if c.LastTrailingWhitespaceY == bloc.Y {
+							if c.NewTrailingWsY == bloc.Y {
 								hl = false
 								break
 							}

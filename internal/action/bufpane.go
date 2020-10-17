@@ -420,8 +420,8 @@ func (h *BufPane) HandleEvent(event tcell.Event) {
 
 	cursors := h.Buf.GetCursors()
 	for _, c := range cursors {
-		if c.LastTrailingWhitespaceY != c.Y {
-			c.LastTrailingWhitespaceY = -1
+		if c.NewTrailingWsY != c.Y {
+			c.NewTrailingWsY = -1
 		}
 	}
 }
