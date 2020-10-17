@@ -120,7 +120,7 @@ func (eh *EventHandler) DoTextEvent(t *TextEvent, useUndo bool) {
 
 	c := eh.cursors[eh.active]
 	if t.EventType == TextEventInsert && c.Loc == end && addingAtEol {
-		addingTrailingWs := hasTrailingWs(text)
+		addingTrailingWs := hasTrailingWs(text[lastnl+1:])
 		addingWsAfterWs := false
 		if start.Y == end.Y {
 			addingWsAfterWs = addingAfterWs && util.IsBytesWhitespace(text)
