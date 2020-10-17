@@ -473,9 +473,8 @@ func (h *BufPane) InsertNewline() bool {
 	cx := h.Cursor.X
 
 	// Remove the whitespaces if keepautoindent setting is off
-	if h.Buf.Settings["autoindent"].(bool) && !h.Buf.Settings["keepautoindent"].(bool) && util.IsSpacesOrTabs(h.Buf.LineBytes(h.Cursor.Y)) {
-		line := h.Buf.LineBytes(h.Cursor.Y)
-		h.Buf.Remove(buffer.Loc{X: 0, Y: h.Cursor.Y}, buffer.Loc{X: util.CharacterCount(line), Y: h.Cursor.Y})
+	if h.Buf.Settings["autoindent"].(bool) && !h.Buf.Settings["keepautoindent"].(bool) && h.Cursor.X <= util.CharacterCount(ws) {
+		h.Buf.Remove(buffer.Loc{X: 0, Y: h.Cursor.Y}, h.Cursor.Loc)
 	}
 
 	h.Buf.Insert(h.Cursor.Loc, "\n")
