@@ -530,29 +530,33 @@ func (w *BufWindow) displayBuffer() {
 				// over cursor-line and color-column
 				dontOverrideBackground := origBg != defBg
 
-				if s, ok := config.Colorscheme["tab-error"]; ok {
-					isTab := (r == '\t') || (r == ' ' && !showcursor)
-					if (b.Settings["tabstospaces"].(bool) && isTab) ||
-						(!b.Settings["tabstospaces"].(bool) && bloc.X < leadingwsLen && r == ' ' && !isTab) {
-						fg, _, _ := s.Decompose()
-						style = style.Background(fg)
-						dontOverrideBackground = true
-					}
-				}
-
-				if s, ok := config.Colorscheme["trailingws"]; ok {
-					if bloc.X >= blineLen-trailingwsLen && bloc.X < blineLen {
-						hl := true
-						for _, c := range cursors {
-							if c.NewTrailingWsY == bloc.Y {
-								hl = false
-								break
-							}
-						}
-						if hl {
+				if b.Settings["hltaberrors"].(bool) {
+					if s, ok := config.Colorscheme["tab-error"]; ok {
+						isTab := (r == '\t') || (r == ' ' && !showcursor)
+						if (b.Settings["tabstospaces"].(bool) && isTab) ||
+							(!b.Settings["tabstospaces"].(bool) && bloc.X < leadingwsLen && r == ' ' && !isTab) {
 							fg, _, _ := s.Decompose()
 							style = style.Background(fg)
 							dontOverrideBackground = true
+						}
+					}
+				}
+
+				if b.Settings["hltrailingws"].(bool) {
+					if s, ok := config.Colorscheme["trailingws"]; ok {
+						if bloc.X >= blineLen-trailingwsLen && bloc.X < blineLen {
+							hl := true
+							for _, c := range cursors {
+								if c.NewTrailingWsY == bloc.Y {
+									hl = false
+									break
+								}
+							}
+							if hl {
+								fg, _, _ := s.Decompose()
+								style = style.Background(fg)
+								dontOverrideBackground = true
+							}
 						}
 					}
 				}
