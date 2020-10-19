@@ -30,6 +30,9 @@ type Cursor struct {
 	// to know what the original selection was
 	OrigSelection [2]Loc
 
+	// The line number where a new trailing whitespace has been added
+	// or -1 if there is no new trailing whitespace at this cursor.
+	// This is used for checking if a trailing whitespace should be highlighted
 	NewTrailingWsY int
 
 	// Which cursor index is this (for multiple cursors)
