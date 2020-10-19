@@ -107,7 +107,7 @@ func (eh *EventHandler) DoTextEvent(t *TextEvent, useUndo bool) {
 		c.LastVisualX = c.GetVisualX()
 	}
 
-	eh.UpdateTrailingWs(t)
+	eh.updateTrailingWs(t)
 }
 
 // ExecuteTextEvent runs a text event
@@ -345,8 +345,8 @@ func (eh *EventHandler) RedoOneEvent() {
 	eh.UndoStack.Push(t)
 }
 
-// UpdateTrailingWs updates the cursor's trailing whitespace status after a text event
-func (eh *EventHandler) UpdateTrailingWs(t *TextEvent) {
+// updateTrailingWs updates the cursor's trailing whitespace status after a text event
+func (eh *EventHandler) updateTrailingWs(t *TextEvent) {
 	if len(t.Deltas) != 1 {
 		return
 	}
