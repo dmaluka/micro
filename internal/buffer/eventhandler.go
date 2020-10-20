@@ -355,31 +355,29 @@ func (eh *EventHandler) updateTrailingWs(t *TextEvent) {
 	end := t.Deltas[0].End
 
 	c := eh.cursors[eh.active]
-	hasTrailingWs := func(b []byte) bool {
-		return len(util.GetTrailingWhitespace(b)) > 0
-	}
 	isEol := func(loc Loc) bool {
 		return loc.X == util.CharacterCount(eh.buf.LineBytes(loc.Y))
 	}
 	if t.EventType == TextEventInsert && c.Loc == end && isEol(end) {
 		var addedTrailingWs bool
-		var addedWsAfterWs bool
+		addedAfterWs := false
+		addedWsOnly := false
 		if start.Y == end.Y {
-			addedTrailingWs = hasTrailingWs(text)
-			addedWsAfterWs = util.IsBytesWhitespace(text) && hasTrailingWs(eh.buf.Substr(Loc{0, start.Y}, start))
+			addedTrailingWs = util.HasTrailingWhitespace(text)
+			addedWsOnly = util.IsBytesWhitespace(text)
+			addedAfterWs = start.X > 0 && util.IsWhitespace(c.buf.RuneAt(Loc{start.X - 1, start.Y}))
 		} else {
 			lastnl := bytes.LastIndex(text, []byte{'\n'})
-			addedTrailingWs = hasTrailingWs(text[lastnl+1:])
-			addedWsAfterWs = false
+			addedTrailingWs = util.HasTrailingWhitespace(text[lastnl+1:])
 		}
 
-		if addedTrailingWs && !addedWsAfterWs {
+		if addedTrailingWs && !(addedAfterWs && addedWsOnly) {
 			c.NewTrailingWsY = c.Y
 		} else if !addedTrailingWs {
 			c.NewTrailingWsY = -1
 		}
 	} else if t.EventType == TextEventRemove && c.Loc == start && isEol(start) {
-		removedAfterWs := hasTrailingWs(eh.buf.LineBytes(start.Y))
+		removedAfterWs := util.HasTrailingWhitespace(eh.buf.LineBytes(start.Y))
 		var removedWsOnly bool
 		if start.Y == end.Y {
 			removedWsOnly = util.IsBytesWhitespace(text)

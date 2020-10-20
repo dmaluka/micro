@@ -510,16 +510,17 @@ func (w *BufWindow) displayBuffer() {
 
 		w.gutterOffset = vloc.X
 
+		bline := b.LineBytes(bloc.Y)
+		blineLen := util.CharacterCount(bline)
+
+		leadingwsEnd := len(util.GetLeadingWhitespace(bline))
+		trailingwsStart := blineLen - util.CharacterCount(util.GetTrailingWhitespace(bline))
+
 		line, nColsBeforeStart, bslice, startStyle := w.getStartInfo(w.StartCol, bloc.Y)
 		if startStyle != nil {
 			curStyle = *startStyle
 		}
 		bloc.X = bslice
-
-		bline := b.LineBytes(bloc.Y)
-		blineLen := util.CharacterCount(bline)
-		leadingwsLen := len(util.GetLeadingWhitespace(bline))
-		trailingwsLen := util.CharacterCount(util.GetTrailingWhitespace(bline))
 
 		draw := func(r rune, combc []rune, style tcell.Style, showcursor bool) {
 			if nColsBeforeStart <= 0 {
@@ -534,7 +535,7 @@ func (w *BufWindow) displayBuffer() {
 					if s, ok := config.Colorscheme["tab-error"]; ok {
 						isTab := (r == '\t') || (r == ' ' && !showcursor)
 						if (b.Settings["tabstospaces"].(bool) && isTab) ||
-							(!b.Settings["tabstospaces"].(bool) && bloc.X < leadingwsLen && r == ' ' && !isTab) {
+							(!b.Settings["tabstospaces"].(bool) && bloc.X < leadingwsEnd && r == ' ' && !isTab) {
 							fg, _, _ := s.Decompose()
 							style = style.Background(fg)
 							dontOverrideBackground = true
@@ -544,7 +545,7 @@ func (w *BufWindow) displayBuffer() {
 
 				if b.Settings["hltrailingws"].(bool) {
 					if s, ok := config.Colorscheme["trailingws"]; ok {
-						if bloc.X >= blineLen-trailingwsLen && bloc.X < blineLen {
+						if bloc.X >= trailingwsStart && bloc.X < blineLen {
 							hl := true
 							for _, c := range cursors {
 								if c.NewTrailingWsY == bloc.Y {

@@ -376,6 +376,12 @@ func GetTrailingWhitespace(b []byte) []byte {
 	return ws
 }
 
+// HasTrailingWhitespace returns true if the given byte array ends with a whitespace
+func HasTrailingWhitespace(b []byte) bool {
+	r, _ := utf8.DecodeLastRune(b)
+	return IsWhitespace(r)
+}
+
 // IntOpt turns a float64 setting to an int
 func IntOpt(opt interface{}) int {
 	return int(opt.(float64))
