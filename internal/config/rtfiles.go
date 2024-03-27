@@ -169,7 +169,6 @@ func ListRealRuntimeFiles(fileType RTFiletype) []RuntimeFile {
 // InitRuntimeFiles initializes all assets file and the config directory
 func InitRuntimeFiles() {
 	add := func(fileType RTFiletype, dir, pattern string) {
-		AddRuntimeFilesFromDirectory(fileType, filepath.Join(ConfigDir, dir), pattern)
 		AddRuntimeFilesFromAssets(fileType, path.Join("runtime", dir), pattern)
 	}
 
