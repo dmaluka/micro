@@ -23,6 +23,7 @@ func init() {
 	config.InitRuntimeFiles()
 	config.InitPlugins()
 	config.InitGlobalSettings()
+	config.LoadAllPlugins()
 	config.GlobalSettings["backup"] = false
 	config.GlobalSettings["fastdirty"] = true
 }
